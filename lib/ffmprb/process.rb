@@ -5,7 +5,7 @@ module Ffmprb
     class << self
 
       attr_accessor :duck_audio_volume_hi, :duck_audio_volume_lo,
-        :duck_audio_silent_min
+        :duck_audio_silent_min, :duck_audio_audible_sound_min
       attr_accessor :duck_audio_transition_length,
         :duck_audio_transition_in_start, :duck_audio_transition_out_start
 
@@ -46,6 +46,7 @@ module Ffmprb
         volume_lo: duck_audio_volume_lo,
         volume_hi: duck_audio_volume_hi,
         silent_min: duck_audio_silent_min,
+        audible_sound_min: duck_audio_audible_sound_min,
         process_options: {},
         video:,  # NOTE Temporarily, video should not be here
         audio:
@@ -58,6 +59,17 @@ module Ffmprb
             roll in_main
 
             ducked_overlay_volume = {0.0 => volume_lo}
+
+            silence.each_cons(2) do |(silent, next_silent)|
+              silent_part = silent.overlaps || silent
+
+              if silent_part.end_at.nil? or (next_silent.start_at - silent_part.end_at) < audible_sound_min
+                silent_part.end_at = next_silent.end_at
+                next_silent.overlaps = silent_part
+              end
+            end
+            silence.delete_if {|silent| silent.overlaps}
+
             silence.each do |silent|
               next  if silent.end_at && silent.start_at && (silent.end_at - silent.start_at) < silent_min
 
