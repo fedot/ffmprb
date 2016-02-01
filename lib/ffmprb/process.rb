@@ -68,7 +68,7 @@ module Ffmprb
                 next_silent.overlaps = silent_part
               end
             end
-            silence.delete_if {|silent| silent.overlaps}
+            silence.delete_if &:overlaps
 
             silence.each do |silent|
               next  if silent.end_at && silent.start_at && (silent.end_at - silent.start_at) < silent_min

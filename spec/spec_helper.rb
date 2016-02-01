@@ -25,6 +25,10 @@ RSpec.configure do |config|
     Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options('color=red:r=30:d=6:s=320x240, setpts=PTS-STARTPTS [red]', 'color=green:r=30:d=6:s=280x200 [green]', '[red] [green] overlay=20:20'), '-pix_fmt', 'yuv420p', @v_file_6.path
     @a_file_g_16 = Ffmprb::File.temp('.mp3')
     Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.G6}:d=16"), @a_file_g_16.path
+    @a_file_a6_10 = Ffmprb::File.temp('.mp3')
+    Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.A6}:d=10, volume=10dB"), @a_file_a6_10.path
+    @av_file_a6_wtb = Ffmprb::File.temp('.mp4')
+    Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options('color=white:d=0.6, split [wh1a] [wh1b]', 'color=black:d=4.2, split [bl1a] [bl1b]', "sine=#{NOTES.A6}:d=0.6, volume=volume=6dB, asplit [na5a] [na5b]", 'aevalsrc=0:d=4.2, asplit [si1a] [si1b]', '[wh1a] [na5a] [bl1a] [si1a] [wh1b] [na5b] [bl1b] [si1b] concat=4:v=1:a=1'), @av_file_a6_wtb.path
   end
 
   config.after :all do

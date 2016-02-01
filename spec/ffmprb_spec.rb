@@ -615,6 +615,28 @@ describe Ffmprb do
         ).to be_approximately NOTES.B6
       end
 
+      it "should not duck on short sound peeks" do
+
+        Ffmprb.process(@av_file_a6_wtb, @a_file_a6_10, @av_out_stream) do |input1, input2, output1|
+          in1 = input(input1)
+          in2 = input(input2)
+          output(output1) do
+            lay in1
+            overlay in2.loop, duck: :audio
+          end
+        end
+
+        fg = wave_data @av_file_a6_wtb.sample at:5, video: false
+        bg = wave_data @a_file_a6_10.sample at:5, video: false
+        aout = wave_data @av_out_stream.sample at: 5, video: false
+
+        expect(bg.volume).to be > fg.volume
+        expect(aout.volume).to be > bg.volume
+        expect(aout.frequency).to be_within(10).of NOTES.A6
+
+        expect(@av_out_stream.length).to be_approximately @av_file_a6_wtb.length
+      end
+
       it "should duck the overlay sound wrt the main sound" do
         # NOTE non-streaming output file requires additional development see #181845
         Ffmprb.process(@av_file_btn_wtb_16, @a_file_g_16, @av_out_stream) do |input1, input2, output1|
