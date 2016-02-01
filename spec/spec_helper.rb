@@ -38,6 +38,8 @@ RSpec.configure do |config|
     # @av_file_ro7_14.remove
     @v_file_6.remove
     @a_file_g_16.remove
+    @a_file_a6_10.remove
+    @av_file_a6_wtb.remove
   end
 
 end
