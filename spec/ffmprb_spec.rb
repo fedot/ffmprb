@@ -617,24 +617,49 @@ describe Ffmprb do
 
       it "should not duck on short sound peeks" do
 
-        Ffmprb.process(@av_file_a6_wtb, @a_file_a6_10, @av_out_stream) do |input1, input2, output1|
-          in1 = input(input1)
-          in2 = input(input2)
-          output(output1) do
-            lay in1
-            overlay in2.loop, duck: :audio
-          end
+        if Ffmprb::Process.duck_audio_audible_sound_min == 0
+          skip
         end
 
-        fg = wave_data @av_file_a6_wtb.sample at:5, video: false
-        bg = wave_data @a_file_a6_10.sample at:5, video: false
-        aout = wave_data @av_out_stream.sample at: 5, video: false
+        note_length = Ffmprb::Process.duck_audio_audible_sound_min/2.00
+        silence_length = (1 + Ffmprb::Process.duck_audio_silent_min * 1.5).round
 
-        expect(bg.volume).to be > fg.volume
-        expect(aout.volume).to be > bg.volume
-        expect(aout.frequency).to be_within(10).of NOTES.A6
+        Ffmprb::Process.output_audio_encoder.tap do |aencoder|
+          begin
+            Ffmprb::Process.output_audio_encoder = nil;
 
-        expect(@av_out_stream.length).to be_approximately @av_file_a6_wtb.length
+            a_file_a6_10 = Ffmprb::File.temp('.wav')
+            Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.A6}:d=10, volume=10dB"), a_file_a6_10.path
+            av_file_a6_wtb = Ffmprb::File.temp('.mp4')
+            Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.A6}:d=#{note_length}, volume=volume=6dB [note]", "aevalsrc=0:d=#{silence_length}, asplit [silence1][silence2]", '[silence1] [note] [silence2]concat=3:v=0:a=1, asplit [aux][aux2]', '[aux]avectorscope,format=yuv420p[vid]'),*['-map','[vid]','-map','[aux2]'], av_file_a6_wtb.path
+
+            fg = wave_data av_file_a6_wtb.sample at:silence_length+0.01, video: false
+            bg = wave_data a_file_a6_10.sample at:silence_length+0.01, video: false
+
+            Ffmprb.process(av_file_a6_wtb, a_file_a6_10, @av_out_stream) do |input1, input2, output1|
+              in1 = input(input1)
+              in2 = input(input2)
+              output(output1) do
+                lay in1
+                overlay in2.loop, duck: :audio
+              end
+            end
+
+            aout = wave_data @av_out_stream.sample at: silence_length+0.01, video: false
+
+            expect(bg.volume).to be > fg.volume
+            expect(aout.volume).to be > bg.volume
+            expect(aout.frequency).to be_within(10).of NOTES.A6
+
+            expect(@av_out_stream.length).to be_approximately av_file_a6_wtb.length
+
+          ensure
+            Ffmprb::Process.output_audio_encoder = aencoder
+
+            a_file_a6_10.remove
+            av_file_a6_wtb.remove
+          end
+        end
       end
 
       it "should duck the overlay sound wrt the main sound" do
