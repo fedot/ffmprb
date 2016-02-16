@@ -60,7 +60,8 @@ module Ffmprb
 
             ducked_overlay_volume = {0.0 => volume_lo}
 
-            silence.each_cons(2) do |(silent, next_silent)|
+            silent_fragments = silence.map &:clone
+            silent_fragments.each_cons(2) do |(silent, next_silent)|
               silent_part = silent.overlaps || silent
 
               if silent_part.end_at.nil? or (next_silent.start_at - silent_part.end_at) < audible_min
@@ -68,9 +69,9 @@ module Ffmprb
                 next_silent.overlaps = silent_part
               end
             end
-            silence.delete_if &:overlaps
+            silent_fragments.delete_if &:overlaps
 
-            silence.each do |silent|
+            silent_fragments.each do |silent|
               next  if silent.end_at && silent.start_at && (silent.end_at - silent.start_at) < silent_min
 
               if silent.start_at
