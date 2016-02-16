@@ -615,7 +615,7 @@ describe Ffmprb do
         ).to be_approximately NOTES.B6
       end
 
-      it "should not duck on short sound peeks" do
+      it "should not duck on short sound peaks" do
 
         if Ffmprb::Process.duck_audio_audible_min == 0
           skip
@@ -630,6 +630,8 @@ describe Ffmprb do
 
             a_file_a6_10 = Ffmprb::File.temp('.wav')
             Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.A6}:d=10, volume=10dB"), a_file_a6_10.path
+
+            # Generating video with silence (longer than `duck_audio_silent_min`) and single peak (shorter than `duck_audio_audible_min`) so the
             av_file_a6_wtb = Ffmprb::File.temp('.mp4')
             Ffmprb::Util.ffmpeg *Ffmprb::Filter.complex_options("sine=#{NOTES.A6}:d=#{note_length}, volume=volume=6dB [note]", "aevalsrc=0:d=#{silence_length}, asplit [silence1][silence2]", '[silence1] [note] [silence2]concat=3:v=0:a=1, asplit [aux][aux2]', '[aux]avectorscope,format=yuv420p[vid]'),*['-map','[vid]','-map','[aux2]'], av_file_a6_wtb.path
 
@@ -647,6 +649,8 @@ describe Ffmprb do
 
             aout = wave_data @av_out_stream.sample at: silence_length+0.01, video: false
 
+            # We use two incoherent sound sources using same note but different level (http://www.sengpielaudio.com/calculator-leveladding.htm)
+            # Ensure background music is louder than video and mixed result audio level is louder than background
             expect(bg.volume).to be > fg.volume
             expect(aout.volume).to be > bg.volume
             expect(aout.frequency).to be_within(10).of NOTES.A6
