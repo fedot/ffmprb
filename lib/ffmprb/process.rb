@@ -5,7 +5,7 @@ module Ffmprb
     class << self
 
       attr_accessor :duck_audio_volume_hi, :duck_audio_volume_lo,
-        :duck_audio_silent_min, :duck_audio_audible_sound_min
+        :duck_audio_silent_min, :duck_audio_audible_min
       attr_accessor :duck_audio_transition_length,
         :duck_audio_transition_in_start, :duck_audio_transition_out_start
 
@@ -43,13 +43,13 @@ module Ffmprb
 
       # NOTE Temporarily, av_main_i/o and not a_main_i/o
       def duck_audio(av_main_i, a_overlay_i, silence, av_main_o,
-        volume_lo: duck_audio_volume_lo,
-        volume_hi: duck_audio_volume_hi,
-        silent_min: duck_audio_silent_min,
-        audible_sound_min: duck_audio_audible_sound_min,
-        process_options: {},
-        video:,  # NOTE Temporarily, video should not be here
-        audio:
+                     volume_lo: duck_audio_volume_lo,
+                     volume_hi: duck_audio_volume_hi,
+                     silent_min: duck_audio_silent_min,
+                     audible_min: duck_audio_audible_min,
+                     process_options: {},
+                     video:, # NOTE Temporarily, video should not be here
+                     audio:
         )
         Ffmprb.process **process_options do
 
@@ -63,7 +63,7 @@ module Ffmprb
             silence.each_cons(2) do |(silent, next_silent)|
               silent_part = silent.overlaps || silent
 
-              if silent_part.end_at.nil? or (next_silent.start_at - silent_part.end_at) < audible_sound_min
+              if silent_part.end_at.nil? or (next_silent.start_at - silent_part.end_at) < audible_min
                 silent_part.end_at = next_silent.end_at
                 next_silent.overlaps = silent_part
               end

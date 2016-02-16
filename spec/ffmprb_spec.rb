@@ -617,11 +617,11 @@ describe Ffmprb do
 
       it "should not duck on short sound peeks" do
 
-        if Ffmprb::Process.duck_audio_audible_sound_min == 0
+        if Ffmprb::Process.duck_audio_audible_min == 0
           skip
         end
 
-        note_length = Ffmprb::Process.duck_audio_audible_sound_min/2.00
+        note_length = Ffmprb::Process.duck_audio_audible_min/2.00
         silence_length = (1 + Ffmprb::Process.duck_audio_silent_min * 1.5).round
 
         Ffmprb::Process.output_audio_encoder.tap do |aencoder|
