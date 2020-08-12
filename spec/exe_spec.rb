@@ -57,7 +57,10 @@ describe Ffmprb::Execution do
         end
 
       FFMPRB
-      expect(Ffmprb::Util.sh 'exe/ffmprb', input: inp_s, output: :stderr).send to_not_to, match(/WARN.+Looping.+finished before its consumer/)
+      expect(Ffmprb::Util.sh 'exe/ffmprb', input: inp_s, output: :stderr).send(
+        to_not_to,
+        match(/WARN.+Looping.+finished before its consumer/)
+      )
       expect(@av_file_o.length true).to be_approximately cut
     end
   end

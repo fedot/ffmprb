@@ -1,13 +1,15 @@
 # ffmprb
 [![Gem Version](https://badge.fury.io/rb/ffmprb.svg)](http://badge.fury.io/rb/ffmprb)
-[![Circle CI](https://circleci.com/gh/showbox-oss/ffmprb.svg?style=svg)](https://circleci.com/gh/showbox-oss/ffmprb)
-## your audio/video montage pal, based on [ffmpeg](https://ffmpeg.org)
+## your audio/video manipulation pal, based on [ffmpeg](https://ffmpeg.org)
 
 A video and audio composing DSL (Damn-Simple Language) and a micro-engine for ffmpeg and ffriends (with CLI)
 
-If you're neither a video technologist, nor a video artist, you neither need cumbersome low level tools (like ffmpeg), nor heavy and costly high level tools (like Premiere).
+Any script-able person can manipulate video/audio media -- or automate such processing -- with ffmprb.
 
-Any script-able person can manipulate video/audio media -- or automate processing thereof -- with ffmprb.
+_ATTENTION_
+
+The actual usage currently depends on having ffmpeg v3.x installed in the system
+(ffmpeg v4.x has broken some of this gem's features), see the sample `./Dockerfile` for working containerisation.
 
 Allows for scripts like
 ```ruby
@@ -25,7 +27,7 @@ ffmpeg -y -noautorotate -i flick.mp4 -i track.mp3 -filter_complex "[0:v] fps=fps
 ...that's the idea, but there's much more to it.
 
 The docs, as well as any other part of this gem, are a work in progress.
-So you're very welcome to look around the [specs](https://github.com/showbox-oss/ffmprb/tree/master/spec) for the actual functionality coverage.
+So you're very welcome to look around the [specs](https://github.com/costa/ffmprb/tree/master/spec) for the actual functionality coverage.
 
 
 ## Installation
@@ -141,12 +143,12 @@ lay input(episode).cut(to: 60), transition: {blend: 3}
 ...
 ```
 
-    $ ffmprb ep01raw.mov logo.png intro.avi new_new.gif ep01tit.mov showbox_promo.mp4 ep01creds.avi ep01out.mov < episode_make.ffmprb
+    $ ffmprb ep01raw.mov logo.png intro.avi new_new.gif ep01tit.mov promo.mp4 ep01creds.avi ep01out.mov < episode_make.ffmprb
 
 
 ### The defaults
 
-The defaults [defaults](https://github.com/showbox-oss/ffmprb/tree/master/lib/defaults.rb) are provided for every possible configuration option (optional options' defaults for the methods below in particular), you're welcome to config anything in your ffmprb scripts.
+The defaults [defaults](https://github.com/costa/ffmprb/tree/master/lib/defaults.rb) are provided for every possible configuration option (optional options' defaults for the methods below in particular), you're welcome to config anything in your ffmprb scripts.
 
 
 ### Advanced usage
@@ -269,7 +271,7 @@ follow these simple principles:
 
 ## Contributing
 
-1. Fork it ( https://github.com/showbox-oss/ffmprb/fork )
+1. Fork it ( https://github.com/costa/ffmprb/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

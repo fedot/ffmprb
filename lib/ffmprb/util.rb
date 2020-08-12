@@ -18,8 +18,10 @@ module Ffmprb
         sh *ffprobe_cmd, *args, limit: limit, timeout: timeout
       end
 
+      # TODO warn on broken pipes incompatibility with 4.x or something
       def ffmpeg(*args, limit: nil, timeout: cmd_timeout, ignore_broken_pipes: true)
-        args = ['-loglevel', 'debug'] + args  if Ffmprb.ffmpeg_debug
+        args = ['-loglevel', 'debug'] + args  if
+          Ffmprb.ffmpeg_debug
         sh *ffmpeg_cmd, *args, output: :stderr, limit: limit, timeout: timeout, ignore_broken_pipes: ignore_broken_pipes
       end
 
@@ -42,7 +44,7 @@ module Ffmprb
                 value = wait_thr.value
                 status = value.exitstatus  # NOTE blocking
                 if status != 0
-                  if value.signaled? && value.termsig == Signal.list['PIPE']
+                  if value.signaled? && value.termsig == Signal.list['PIPE']  # TODO! this doesn't seem to work for ffmpeg 4.x (it ignores SIGPIPEs)
                     if ignore_broken_pipes
                       Ffmprb.logger.info "Ignoring broken pipe: #{cmd_str}"
                     else
@@ -54,7 +56,7 @@ module Ffmprb
                   end
                 end
               end
-              Ffmprb.logger.debug "FINISHED: #{cmd_str}"
+              Ffmprb.logger.debug{"FINISHED: #{cmd_str}"}
 
               Thread.join_children! limit, timeout: timeout
 

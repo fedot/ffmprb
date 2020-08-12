@@ -19,7 +19,7 @@ module Ffmprb
   Process.input_video_fps = nil  # NOTE the documented ffmpeg default is 25
 
   Process.output_video_resolution = CGA
-  Process.output_video_fps = 16
+  Process.output_video_fps = 16  # NOTE the documented ffmpeg default is 25
   Process.output_audio_encoder = 'libmp3lame'
   Process.output_audio_sampling_freq = nil  # NOTE Use ffmpeg default by default, specify otherwise e.g. 44100
 

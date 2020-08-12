@@ -3,5 +3,5 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"/..
 
 docker-compose rm -svf
 docker-compose build
-docker-compose up --abort-on-container-exit
+FFMPRB_DEBUG=$DEBUG docker-compose up --abort-on-container-exit
 docker-compose rm -svf

@@ -39,7 +39,7 @@ module Ffmprb
       def input_video_options
         {
           auto_rotate: input_video_auto_rotate,
-          fps: input_video_fps
+          fps: input_video_fps  # TODO seen failing on apng (w/ffmpeg v4.x)
         }
       end
       def input_audio_options
@@ -97,7 +97,10 @@ module Ffmprb
             end
             overlay in_over.volume ducked_overlay_volume
 
-            Ffmprb.logger.debug "Ducking audio with volumes: {#{ducked_overlay_volume.map{|t,v| "#{t}: #{v}"}.join ', '}}"
+            Ffmprb.logger.debug{
+              ducked_overlay_volume_map = ducked_overlay_volume.map{|t,v| "#{t}: #{v}"}
+              "Ducking audio with volumes: {#{ducked_overlay_volume_map.join ', '}}"
+            }
           end
 
         end
@@ -157,7 +160,6 @@ module Ffmprb
       thr = Util::Thread.new main: !parent do
         proc_vis_node Thread.current
         # NOTE yes, an exception can occur anytime, and we'll just die, it's ok, see above
-        # XXX just to return something -- no apparent practical use
         cmd = command
         opts = {limit: limit, timeout: timeout}
         opts[:ignore_broken_pipes] = ignore_broken_pipes  unless ignore_broken_pipes.nil?

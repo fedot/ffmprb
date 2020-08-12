@@ -262,7 +262,10 @@ module Ffmprb
       end
 
       def complex_args(*filters)
-        ['-filter_complex', filters.join('; ')]  unless filters.empty?
+        [].tap do |args|
+          args << '-filter_complex' << filters.join('; ') unless
+            filters.empty?
+        end
       end
 
       private

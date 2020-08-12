@@ -14,7 +14,7 @@ module Ffmprb
           end
         end
 
-        # XXX check for unknown options
+        # TODO! check for unknown options
 
         def video_args(video=nil)
           video = Process.input_video_options.merge(video.to_h)

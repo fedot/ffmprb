@@ -1,8 +1,8 @@
 module Ffmprb
 
-  VERSION = '0.11.3'
+  VERSION = '0.11.4'
 
-  GEM_GITHUB_URL = 'https://github.com/showbox-oss/ffmprb'
+  GEM_GITHUB_URL = 'https://github.com/costa/ffmprb'
 
   FIREBASE_AVAILABLE =
     begin

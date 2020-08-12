@@ -84,7 +84,7 @@ module Ffmprb
             # NOTE Image-Padding to match the target resolution
             # TODO full screen only at the moment (see exception above)
 
-            Ffmprb.logger.debug "#{self} asking for filters of #{curr_reel.reel.io.inspect} video: #{channel(:video)}, audio: #{channel(:audio)}"
+            Ffmprb.logger.debug{"#{self} asking for filters of #{curr_reel.reel.io.inspect} video: #{channel(:video)}, audio: #{channel(:audio)}"}
             @filters.concat(
               curr_reel.reel.filters_for lbl, video: channel(:video), audio: channel(:audio)
             )
@@ -151,7 +151,7 @@ module Ffmprb
               )  if channel?(:audio)
 
               segments << new_prev_lbl
-              Ffmprb.logger.debug "Concatting segments: #{new_prev_lbl} pushed"
+              Ffmprb.logger.debug{"Concatting segments: #{new_prev_lbl} pushed"}
             end
 
             if curr_reel.transition
@@ -264,7 +264,7 @@ module Ffmprb
             end
             process.proc_vis_edge process, main_av_o, :remove
             process.proc_vis_edge process, main_av_inter_i
-            Ffmprb.logger.debug "Re-routed the main audio output (#{main_av_inter_i.path}->...->#{main_av_o.path}) through the process of audio ducking"
+            Ffmprb.logger.debug{"Re-routed the main audio output (#{main_av_inter_i.path}->...->#{main_av_o.path}) through the process of audio ducking"}
 
             over_a_i, over_a_o = File.threaded_buffered_fifo(Process.intermediate_channel_extname(audio: true, video: false), proc_vis: process)
             lbl_over = "o#{idx}l#{i}"
@@ -273,10 +273,10 @@ module Ffmprb
             )
             @channel_lbl_ios["#{lbl_over}:a"] = over_a_i
             process.proc_vis_edge process, over_a_i
-            Ffmprb.logger.debug "Routed and buffering auxiliary output fifos (#{over_a_i.path}>#{over_a_o.path}) for overlay"
+            Ffmprb.logger.debug{"Routed and buffering auxiliary output fifos (#{over_a_i.path}>#{over_a_o.path}) for overlay"}
 
             inter_i, inter_o = File.threaded_buffered_fifo(intermediate_extname, proc_vis: process)
-            Ffmprb.logger.debug "Allocated fifos to buffer media (#{inter_i.path}>#{inter_o.path}) while finding silence"
+            Ffmprb.logger.debug{"Allocated fifos to buffer media (#{inter_i.path}>#{inter_o.path}) while finding silence"}
 
             ignore_broken_pipes_was = process.ignore_broken_pipes  # XXX maybe throw an exception instead?
             process.ignore_broken_pipes = true  # NOTE audio ducking process may break the overlay pipe
@@ -285,7 +285,10 @@ module Ffmprb
               process.proc_vis_edge main_av_inter_o, inter_i  # XXX mark it better
               silence = Ffmprb.find_silence(main_av_inter_o, inter_i)
 
-              Ffmprb.logger.debug "Audio ducking with silence: [#{silence.map{|s| "#{s.start_at}-#{s.end_at}"}.join ', '}]"
+              Ffmprb.logger.debug{
+                silence_map = silence.map{|s| "#{s.start_at}-#{s.end_at}"}
+                "Audio ducking with silence: [#{silence_map.join ', '}]"
+              }
 
               Process.duck_audio inter_o, over_a_o, silence, main_av_o,
                 process_options: {parent: process, ignore_broken_pipes: ignore_broken_pipes_was, timeout: process.timeout},

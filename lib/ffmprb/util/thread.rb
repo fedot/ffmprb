@@ -42,12 +42,13 @@ module Ffmprb
       attr_reader :name
 
       def initialize(name="some", main: false, &blk)
+        orig_caller = caller
         @name = name
         @parent = Thread.current
         @live_children = []
         @children_mon = Monitor.new
         @dead_children_q = Queue.new
-        Ffmprb.logger.debug "about to launch #{name}"
+        Ffmprb.logger.debug{"about to launch #{name}"}
         sync_q = Queue.new
         super() do
           @parent.proc_vis_node self  if @parent.respond_to? :proc_vis_node
@@ -57,10 +58,10 @@ module Ffmprb
             Ffmprb.logger.warn "Not the main: true thread run by a not #{self.class.name} thread"  unless main
           end
           sync_q.enq :ok
-          Ffmprb.logger.debug "#{name} thread launched"
+          Ffmprb.logger.debug{"#{name} thread launched"}
           begin
             blk.call.tap do
-              Ffmprb.logger.debug "#{name} thread done"
+              Ffmprb.logger.debug{"#{name} thread done"}
             end
           rescue Exception
             Ffmprb.logger.warn "#{$!.class.name} raised in #{name} thread: #{$!.message}\nBacktrace:\n\t#{$!.backtrace.join("\n\t")}"
@@ -84,7 +85,7 @@ module Ffmprb
 
       def child_lives(thr)
         @children_mon.synchronize do
-          Ffmprb.logger.debug "picking up #{thr.name} thread"
+          Ffmprb.logger.debug{"picking up #{thr.name} thread"}
           @live_children << thr
         end
         proc_vis_edge self, thr
@@ -92,7 +93,7 @@ module Ffmprb
 
       def child_dies(thr)
         @children_mon.synchronize do
-          Ffmprb.logger.debug "releasing #{thr.name} thread"
+          Ffmprb.logger.debug{"releasing #{thr.name} thread"}
           @dead_children_q.enq thr
           fail "System Error"  unless @live_children.delete thr
         end
